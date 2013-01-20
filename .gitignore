@@ -1,0 +1,2 @@
+# don't track the file with local configuration values
+cta_analytics/config.py
