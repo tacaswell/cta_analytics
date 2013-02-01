@@ -1,0 +1,19 @@
+* 2013-01-31
+** loop to scrape 24 hours worth of data
+#+BEGIN_SRC python
+  import time
+  import cta_analytics.scraper as cas
+  db = cas.mongo_wrapper(server='192.168.1.141')
+  route_list = [2, 6, 55, 146, 136]
+  stop_list = [4862, 1427, 14019, 5037, 10575, 15193]
+  for j in range(25 * 60):
+      try:
+          db.add_bus_locations(cas.get_buses_on_route(route_list))
+          db.add_stop_prediction(cas.get_predictions(stop_list))
+      except:
+          print 'there was an error'
+      print 'fired'
+      time.sleep(60)
+
+
+#+END_SRC
