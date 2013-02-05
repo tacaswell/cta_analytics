@@ -37,6 +37,15 @@ class mongo_wrapper(object):
             coll.insert(p)
 
 
+def parse_date(date_str):
+    if 'fstr' in config_dict:
+        fstr = config_dict['fstr']
+    else:
+        fstr = '%Y%m%d %H:%M'
+
+    return datetime.strptime(date_str, fstr)
+
+
 def get_buses_on_route(route_nums):
     """
     Returns the result of the api call for all busses on the routes specified.
@@ -51,7 +60,7 @@ def get_buses_on_route(route_nums):
               'rt': ','.join([str(int(r)) for r in route_nums])
               }
 
-    r = requests.get(url, params=params)
+    r = requests.get(url, params=params, timeout=1.0)
 
     if r.status_code != 200:
         print "ERROR"
@@ -69,10 +78,7 @@ def get_buses_on_route(route_nums):
             local_dict[data.tag] = data.text
 
         if 'tmstmp' in local_dict:
-            local_dict['year'] = int(local_dict['tmstmp'][:4])
-            local_dict['month'] = int(local_dict['tmstmp'][4:6])
-            local_dict['day'] = int(local_dict['tmstmp'][6:8])
-            pass
+            local_dict['timestamp'] = parse_date(local_dict['tmstmp'])
         else:
             print local_dict
         busses.append(local_dict)
@@ -84,7 +90,7 @@ def get_time_offset():
     url = '%s/gettime' % config_dict['url']
     params = {'key': config_dict['key']}
 
-    cta_time = requests.get(url, params=params)
+    cta_time = requests.get(url, params=params, timeout=1.0)
     sys_time = datetime.now()
 
     fmt_str = '%Y%m%d %H:%M:%S'
@@ -100,7 +106,7 @@ def get_stop_distance(route):
     params = {'key': config_dict['key'],
               'rt': str(int(route))}
 
-    r = requests.get(url, params=params)
+    r = requests.get(url, params=params, timeout=1.0)
 
     route_xml = ET.fromstring(r.text)
 
@@ -122,7 +128,7 @@ def get_routes():
 
     params = {'key': config_dict['key'], }
 
-    r = requests.get(url, params=params)
+    r = requests.get(url, params=params, timeout=1.0)
 
     route_xml = ET.fromstring(r.text)
 
@@ -138,7 +144,7 @@ def get_directions(rt_num):
     params = {'key': config_dict['key'],
               'rt': str(int(rt_num))}
 
-    r = requests.get(url, params=params)
+    r = requests.get(url, params=params, timeout=1.0)
 
     directions_xml = ET.fromstring(r.text)
 
@@ -153,7 +159,7 @@ def get_stops(rt_num, direction):
               'rt': str(int(rt_num)),
               'dir': direction}
 
-    r = requests.get(url, params=params)
+    r = requests.get(url, params=params, timeout=1.0)
     stop_xml = ET.fromstring(r.text)
 
     stops = []
@@ -175,7 +181,7 @@ def get_predictions(stops):
               'stpid': ','.join([str(int(s)) for s in stops])
               }
 
-    r = requests.get(url, params=params)
+    r = requests.get(url, params=params, timeout=1.0)
 
     if r.status_code != 200:
         print "ERROR"
@@ -192,10 +198,8 @@ def get_predictions(stops):
             local_dict[data.tag] = data.text
 
         if 'tmstmp' in local_dict:
-            local_dict['year'] = int(local_dict['tmstmp'][:4])
-            local_dict['month'] = int(local_dict['tmstmp'][4:6])
-            local_dict['day'] = int(local_dict['tmstmp'][6:8])
-            pass
+            local_dict['timestamp'] = parse_date(local_dict['tmstmp'])
+
         else:
             print local_dict
         busses.append(local_dict)
