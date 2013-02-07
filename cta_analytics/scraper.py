@@ -199,6 +199,8 @@ def get_predictions(stops):
 
         if 'tmstmp' in local_dict:
             local_dict['timestamp'] = parse_date(local_dict['tmstmp'])
+        if 'prdtm' in local_dict:
+            local_dict['prd_time'] = parse_date(local_dict['prdtm'])
 
         else:
             print local_dict
