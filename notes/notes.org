@@ -3,7 +3,7 @@
 #+BEGIN_SRC python
   import time
   import cta_analytics.scraper as cas
-  db = cas.mongo_wrapper(server='192.168.1.141')
+  db = cas.mongo_wrapper(server='192.168.1.120')
   route_list = [2, 6, 55, 146, 136]
   stop_list = [4862, 1427, 14019, 5037, 10575, 15193]
   for j in range(25 * 60):
@@ -16,4 +16,42 @@
       time.sleep(60)
 
 
+#+END_SRC
+
+* 2013-02-06
+** getting data out
+
+** re-conning time stamps
+#+BEGIN_SRC python
+  for d in bus_loc_coll.find():
+      if 'timestamp' in d:
+          continue
+      time_stamp = cas.parse_date(d['tmstmp'])
+      bus_loc_coll.update({'_id': d['_id']},
+                          '$set': {'timestamp': time_stamp})
+#+END_SRC
+#+BEGIN_SRC python
+  for d in prediction_coll.find():
+      if 'timestamp' in d:
+          continue
+      time_stamp = cas.parse_date(d['tmstmp'])
+      prd_time = cas.parse_date(d['prdtm'])
+      prediction_coll.update({'_id': d['_id']},
+                             '$set': {'timestamp': time_stamp, 'prd_time': prd_time})
+
+
+#+END_SRC
+
+#+BEGIN_SRC python
+  for d in prediction_coll.find():
+      if 'rt' in d:
+          continue
+      prediction_coll.remove({'_id': d['_id']})
+
+
+  for d in bus_loc_coll.find():
+      if 'rt' in d:
+          continue
+
+      bus_loc_coll.remove({'_id': d['_id']})
 #+END_SRC
