@@ -23,10 +23,8 @@ class mongo_wrapper(object):
 
     def add_bus_locations(self, bus_locs):
         coll = self.db.bus_location
-        for b in bus_locs:
-            coll.insert(b)
+        coll.insert(bus_locs)
 
     def add_stop_prediction(self, predictions):
         coll = self.db.arrrival_prediction
-        for p in predictions:
-            coll.insert(p)
+        coll.insert(predictions)
