@@ -16,26 +16,7 @@
 import requests
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from pymongo import MongoClient
-
 from config import config_dict
-
-
-class mongo_wrapper(object):
-    def __init__(self, server='localhost', port=27017):
-        self.connection = MongoClient(server, port)
-        self.db = self.connection.cta_analytics
-
-    def add_bus_locations(self, bus_locs):
-        coll = self.db.bus_location
-        for b in bus_locs:
-            coll.insert(b)
-
-    def add_stop_prediction(self, predictions):
-        coll = self.db.arrrival_prediction
-        for p in predictions:
-            coll.insert(p)
-
 
 def parse_date(date_str):
     if 'fstr' in config_dict:
