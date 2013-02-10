@@ -19,9 +19,7 @@
 #+END_SRC
 
 * 2013-02-06
-** getting data out
-
-** re-conning time stamps
+** ret-conning time stamps
 #+BEGIN_SRC python
   for d in bus_loc_coll.find():
       if 'timestamp' in d:
@@ -41,7 +39,7 @@
 
 
 #+END_SRC
-
+** remove mangled entries
 #+BEGIN_SRC python
   for d in prediction_coll.find():
       if 'rt' in d:
@@ -54,4 +52,62 @@
           continue
 
       bus_loc_coll.remove({'_id': d['_id']})
+#+END_SRC
+* 2013-02-09
+** getting data out
+#+BEGIN_SRC python
+  from datetime import date, time, datetime, timedelta
+  import pandas as pd
+
+  def get_route_by_day(rt, date):
+      start_time = datetime.combine(date, time(4))
+      end_time = start_time + timedelta(days=1)
+
+      res = []
+      for r in bus_col.find({'rt': rt,
+                             "timestamp": {"$lt": end_time},
+                             "timestamp": {"$gt": start_time}}):
+          res.append(r)
+
+
+      return pd.DataFrame(res)
+
+  def fix_types(input_df):
+      type_map_dict = {'hdg': np.int,
+                       'lat': np.float,
+                       'lon': np.float,
+                       'pdist': np.int}
+
+      for f,t in type_map_dict.iteritems():
+          input_df[f] = input_df[f].astype(t)
+
+      return input_df
+
+
+#+END_SRC
+** looking at patterns
+#+BEGIN_SRC python
+  pid_dicts = cas.get_pattern_by_pid(','.join(pids))
+  [(k, len(v['pts']), v['ln'], v['rtdir']) for k,v in pid_dicts.iteritems()]
+#+END_SRC
+#+BEGIN_SRC python
+  import itertools
+  figure()
+  ax = gca()
+  for i, ((k,v), c) in enumerate(itertools.izip(pid_dicts.iteritems(), ['r', 'b', 'g', 'm', 'k'])):
+
+      lats = np.asarray([np.float(p['lat']) for p in v['pts']]) + .001 * i
+      lons = np.asarray([np.float(p['lon']) for p in v['pts']]) + .001 * i
+
+      slats = np.asarray([np.float(p['lat']) for p in v['pts'] if p['typ'] == 'S']) + .001 * i
+      slons = np.asarray([np.float(p['lon']) for p in v['pts'] if p['typ'] == 'S']) + .001 * i
+
+      ax.plot(lons, lats, label=k, color=c)
+      if v['rtdir'] == 'South Bound':
+          marker = 'o'
+      elif v['rtdir'] == 'North Bound':
+          marker = 's'
+      ax.plot(slons, slats, marker=marker, linestyle='none', color=c)
+
+  legend()
 #+END_SRC
