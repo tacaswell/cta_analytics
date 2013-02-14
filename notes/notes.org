@@ -111,3 +111,37 @@
 
   legend()
 #+END_SRC
+
+* 2013-02-12
+** segment runs
+#+BEGIN_SRC python
+  from itertools import tee, izip
+  def split():
+      pass
+
+  def speed(group):
+      pdist_diff = group.pdist.diff()
+      time_diff = group.timestamp.diff().fillna(timedelta(0)).apply(timedelta.total_seconds)
+
+      plot(group.timestamp, pdist_diff/time_diff)
+
+  def pairwise(iterable):
+      "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+      a, b = tee(iterable)
+      next(b, None)
+      return izip(a, b)
+
+
+  def split(group):
+      pdist_diff = group.pdist.diff()
+      steps = [0] + list(np.where(group.pdist.diff() < 0)[0]) + [group.shape[0]]
+
+      res_list = list()
+      for a, b in pairwise(steps):
+          tmp_frame = group[slice(a,b)]
+          tmp_frame = tmp_frame.set_index('timestamp')
+          res_list.append(tmp_frame)
+      return res_list
+
+
+#+END_SRC
