@@ -3,7 +3,7 @@ from datetime import datetime
 import cta_analytics.scraper as cas
 import cta_analytics.scraper as cadb
 db = cadb.mongo_wrapper(server='192.168.1.120')
-route_list = [2, 6, 55, 146, 136, 36, 148]
+route_list = [2, 6, 55, 146, 136, 36, 148, 80, 56, 54]
 stop_list = [4862, 1427, 14019, 5037, 10575, 15193]
 for j in range(25 * 60):
     print 'fired ' + datetime.now().isoformat()

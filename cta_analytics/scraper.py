@@ -102,6 +102,35 @@ def get_stop_distance(route):
 
     return stop_dist
 
+
+def get_pattern_by_route(route):
+    url = '%s/getpatterns' % config_dict['url']
+
+    params = {'key': config_dict['key'],
+              'rt': route}
+
+    r = requests.get(url, params=params, timeout=1.0)
+
+    route_xml = ET.fromstring(r.text)
+
+    res = {}
+
+    for ptr in route_xml:
+        local_dict = {}
+        for data in ptr[:3]:
+            local_dict[data.tag] = data.text
+        pts = []
+        for pt in ptr[3:]:
+            pt_dict = {}
+            for d in pt:
+                pt_dict[d.tag] = d.text
+            pts.append(pt_dict)
+        local_dict['pts'] = pts
+        res[ptr[0].text] = local_dict
+
+    return res
+
+
 def get_pattern_by_pid(pid):
     url = '%s/getpatterns' % config_dict['url']
 
@@ -122,11 +151,10 @@ def get_pattern_by_pid(pid):
             for d in pt:
                 pt_dict[d.tag] = d.text
             pts.append(pt_dict)
-        local_dict['pts'] =pts
+        local_dict['pts'] = pts
         res[ptr[0].text] = local_dict
 
     return res
-
 
 
 def get_routes():
