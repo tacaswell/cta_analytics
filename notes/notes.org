@@ -145,3 +145,13 @@
 
 
 #+END_SRC
+
+* 2013-04-09
+** set up
+#+BEGIN_SRC python
+  sys.path.append('/home/tcaswell/open_gov/cta_analytics')
+  import cta_analytics.db as cadb
+  mongow = cadb.mongo_wrapper('192.168.7.107')
+  bus_col = mongow.db.bus_location
+  import cta_analytics.scraper as cas
+#+END_SRC
